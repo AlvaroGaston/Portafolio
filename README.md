@@ -6,13 +6,14 @@ Portfolio personal de **Alvaro Gaston**, estudiante de Ingeniería en Sistemas I
 
 ## Stack
 
-Sitio estático, sin frameworks ni build step:
+Sitio estático, sin frameworks de UI ni bundler:
 
 - **HTML5** semántico (`header`, `nav`, `main`, `section`, `footer`)
 - **CSS3** (variables, Grid, Flexbox, media queries, `prefers-reduced-motion`)
 - **JavaScript vanilla** (ES6+): menú mobile, `IntersectionObserver` para animaciones de entrada y barras de skills, modal de CV con Web Share API
+- **TypeScript**: validación y envío del formulario de contacto (`src/contact-form.ts`), compilado a `src/contact-form.js` con `tsc` (sin bundler, sin módulos — se sirve tal cual)
 
-No requiere Node, ni dependencias, ni proceso de build.
+No requiere un servidor backend. El único paso de build es compilar ese archivo TypeScript; el `.js` resultante ya queda commiteado en el repo, así que **no es obligatorio tener Node para ver el sitio**, solo para modificar el formulario.
 
 ## Cómo correrlo localmente
 
@@ -30,16 +31,31 @@ No requiere Node, ni dependencias, ni proceso de build.
    ```
 3. Entrá a `http://localhost:5500` (o el puerto que indique tu servidor).
 
+### Si vas a tocar el formulario de contacto (TypeScript)
+
+```bash
+npm install        # instala typescript como devDependency
+npm run build       # compila src/contact-form.ts -> src/contact-form.js
+npm run watch        # (opcional) recompila automáticamente al guardar
+```
+
+El formulario valida nombre, email y mensaje en el cliente y, si están completos, abre el cliente de mail del visitante con un `mailto:` prearmado hacia `alvarogastonxar@gmail.com` (el sitio es estático, así que no hay backend que envíe el mail por sí solo).
+
 ## Estructura
 
 ```
 portfolio-alvaro/
-├── index.html          # Markup de todas las secciones
-├── style.css           # Estilos y responsive
-├── script.js           # Interactividad (menú, animaciones, modal de CV)
+├── index.html              # Markup de todas las secciones
+├── style.css               # Estilos y responsive
+├── script.js               # Interactividad (menú, animaciones, modal de CV)
+├── src/
+│   ├── contact-form.ts     # Validación y envío del form de contacto (fuente)
+│   └── contact-form.js     # Salida compilada (la que referencia index.html)
 ├── assets/
 │   ├── profile.jpg
 │   └── CV-Alvaro-Gaston.pdf
+├── package.json            # Script de build de TypeScript
+├── tsconfig.json
 └── README.md
 ```
 
