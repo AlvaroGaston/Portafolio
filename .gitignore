@@ -1,0 +1,8 @@
+node_modules/
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
+
+# Copia suelta del CV fuera de assets/ (el que usa el sitio es assets/CV-Alvaro-Gaston.pdf)
+/Currículum Alvaro Gaston.pdf
