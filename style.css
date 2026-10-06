@@ -638,6 +638,23 @@ button:focus-visible {
 }
 .form-status.error { color: #ff8a8a; }
 
+.form-fallback {
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+  font-size: 0.88rem;
+  color: var(--text-dim);
+}
+.form-fallback-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.form-fallback-actions .btn {
+  padding: 9px 18px;
+  font-size: 0.82rem;
+}
+
 /* FOOTER */
 .footer {
   text-align: center;

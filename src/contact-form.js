@@ -22,6 +22,27 @@ function initContactForm() {
     const emailInput = byId("cf-email");
     const messageInput = byId("cf-message");
     const statusEl = byId("cf-status");
+    const fallbackEl = byId("cf-fallback");
+    const mailtoLink = byId("cf-mailto-link");
+    const copyBtn = byId("cf-copy");
+    let lastPlainMessage = "";
+    async function copyToClipboard(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        }
+        catch (_a) {
+            return false;
+        }
+    }
+    copyBtn.addEventListener("click", async () => {
+        const original = copyBtn.textContent;
+        const ok = await copyToClipboard(lastPlainMessage);
+        copyBtn.textContent = ok ? "¡Copiado!" : "No se pudo copiar";
+        setTimeout(() => {
+            copyBtn.textContent = original;
+        }, 2000);
+    });
     const fields = [
         {
             input: nameInput,
@@ -93,10 +114,24 @@ function initContactForm() {
         const mailtoUrl = `mailto:${DEST_EMAIL}` +
             `?subject=${encodeURIComponent(subject)}` +
             `&body=${encodeURIComponent(body)}`;
+        lastPlainMessage = `Para: ${DEST_EMAIL}\nAsunto: ${subject}\n\n${body}`;
+        mailtoLink.setAttribute("href", mailtoUrl);
         statusEl.classList.remove("error");
-        statusEl.textContent = "Abriendo tu cliente de mail para enviar el mensaje…";
-        window.location.href = mailtoUrl;
-        form.reset();
+        statusEl.textContent =
+            "Intentando abrir tu programa de correo con el mensaje cargado…";
+        // Un <a> "clickeado" de verdad es más confiable para disparar mailto:
+        // que reasignar window.location.href (algunos navegadores lo bloquean
+        // o no hacen nada si no hay un cliente de mail predeterminado).
+        const trigger = document.createElement("a");
+        trigger.href = mailtoUrl;
+        trigger.style.display = "none";
+        document.body.appendChild(trigger);
+        trigger.click();
+        trigger.remove();
+        // No hay forma de detectar desde JS si realmente se abrió un cliente de
+        // mail (el navegador no avisa), así que siempre mostramos el respaldo:
+        // copiar el mensaje o reintentar el link manualmente.
+        fallbackEl.hidden = false;
     });
 }
 document.addEventListener("DOMContentLoaded", initContactForm);
