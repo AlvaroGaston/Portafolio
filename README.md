@@ -39,7 +39,7 @@ npm run build       # compila src/contact-form.ts -> src/contact-form.js
 npm run watch        # (opcional) recompila automáticamente al guardar
 ```
 
-El formulario valida nombre, email y mensaje en el cliente y, si están completos, abre el cliente de mail del visitante con un `mailto:` prearmado hacia `alvarogastonxar@gmail.com` (el sitio es estático, así que no hay backend que envíe el mail por sí solo).
+El formulario valida nombre, email y mensaje en el cliente y los envía con **[Web3Forms](https://web3forms.com)** (`fetch` a su API), que entrega el mail directo a `alvarogastonxar@gmail.com` sin necesitar un backend propio. La "access key" que usa es pública por diseño de Web3Forms (está pensada para ir en el HTML/JS del cliente). Si el envío falla (sin conexión, servicio caído, etc.), el formulario muestra un respaldo para copiar el mensaje o abrirlo como `mailto:`.
 
 ## Estructura
 

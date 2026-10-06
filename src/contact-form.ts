@@ -1,8 +1,10 @@
-// Formulario de contacto: valida los campos y, si son válidos, abre el cliente
-// de mail del visitante con un mailto: prearmado dirigido a mi casilla.
-// El sitio es estático (sin backend), así que esto reemplaza a un envío por servidor.
+// Formulario de contacto: valida los campos y envía el mensaje con Web3Forms
+// (https://web3forms.com), que lo entrega directo a alvarogastonxar@gmail.com.
+// El sitio es estático (sin backend propio), por eso se usa este servicio:
+// la "access key" de Web3Forms está pensada para ir expuesta en el cliente.
 
 const DEST_EMAIL = "alvarogastonxar@gmail.com";
+const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
 
 interface FieldConfig {
   input: HTMLInputElement | HTMLTextAreaElement;
@@ -31,6 +33,7 @@ function initContactForm(): void {
   const emailInput = byId<HTMLInputElement>("cf-email");
   const messageInput = byId<HTMLTextAreaElement>("cf-message");
   const statusEl = byId<HTMLElement>("cf-status");
+  const submitBtn = byId<HTMLButtonElement>("cf-submit");
   const fallbackEl = byId<HTMLElement>("cf-fallback");
   const mailtoLink = byId<HTMLAnchorElement>("cf-mailto-link");
   const copyBtn = byId<HTMLButtonElement>("cf-copy");
@@ -106,7 +109,17 @@ function initContactForm(): void {
     });
   });
 
-  form.addEventListener("submit", (event) => {
+  function showFallback(subject: string, body: string): void {
+    lastPlainMessage = `Para: ${DEST_EMAIL}\nAsunto: ${subject}\n\n${body}`;
+    const mailtoUrl =
+      `mailto:${DEST_EMAIL}` +
+      `?subject=${encodeURIComponent(subject)}` +
+      `&body=${encodeURIComponent(body)}`;
+    mailtoLink.setAttribute("href", mailtoUrl);
+    fallbackEl.hidden = false;
+  }
+
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const results = fields.map((field) => validateField(field));
@@ -118,38 +131,47 @@ function initContactForm(): void {
       return;
     }
 
-    const subject = `Contacto desde el portfolio — ${nameInput.value.trim()}`;
-    const body =
-      `Nombre: ${nameInput.value.trim()}\n` +
-      `Email: ${emailInput.value.trim()}\n\n` +
-      `${messageInput.value.trim()}`;
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    const message = messageInput.value.trim();
+    const subject = `Contacto desde el portfolio — ${name}`;
 
-    const mailtoUrl =
-      `mailto:${DEST_EMAIL}` +
-      `?subject=${encodeURIComponent(subject)}` +
-      `&body=${encodeURIComponent(body)}`;
-
-    lastPlainMessage = `Para: ${DEST_EMAIL}\nAsunto: ${subject}\n\n${body}`;
-    mailtoLink.setAttribute("href", mailtoUrl);
-
+    submitBtn.disabled = true;
     statusEl.classList.remove("error");
-    statusEl.textContent =
-      "Intentando abrir tu programa de correo con el mensaje cargado…";
+    statusEl.textContent = "Enviando mensaje…";
+    fallbackEl.hidden = true;
 
-    // Un <a> "clickeado" de verdad es más confiable para disparar mailto:
-    // que reasignar window.location.href (algunos navegadores lo bloquean
-    // o no hacen nada si no hay un cliente de mail predeterminado).
-    const trigger = document.createElement("a");
-    trigger.href = mailtoUrl;
-    trigger.style.display = "none";
-    document.body.appendChild(trigger);
-    trigger.click();
-    trigger.remove();
+    try {
+      const response = await fetch(WEB3FORMS_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: (form.elements.namedItem("access_key") as HTMLInputElement).value,
+          name,
+          email,
+          message,
+          subject,
+          botcheck: (form.elements.namedItem("botcheck") as HTMLInputElement).checked,
+        }),
+      });
 
-    // No hay forma de detectar desde JS si realmente se abrió un cliente de
-    // mail (el navegador no avisa), así que siempre mostramos el respaldo:
-    // copiar el mensaje o reintentar el link manualmente.
-    fallbackEl.hidden = false;
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        statusEl.textContent = "¡Mensaje enviado! Te voy a responder a la brevedad.";
+        form.reset();
+      } else {
+        throw new Error(result.message || "Error desconocido al enviar el formulario.");
+      }
+    } catch (error) {
+      console.error("Error enviando el formulario de contacto:", error);
+      statusEl.classList.add("error");
+      statusEl.textContent =
+        "No se pudo enviar el mensaje. Probá de nuevo o usá el respaldo de abajo.";
+      showFallback(subject, `Nombre: ${name}\nEmail: ${email}\n\n${message}`);
+    } finally {
+      submitBtn.disabled = false;
+    }
   });
 }
 

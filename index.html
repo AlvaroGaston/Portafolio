@@ -517,6 +517,21 @@
         <form class="contact-form" id="contactForm" novalidate>
           <h3 class="contact-form-title">O escribime directamente</h3>
 
+          <!-- Web3Forms: entrega el mail a alvarogastonxar@gmail.com sin backend propio -->
+          <input
+            type="hidden"
+            name="access_key"
+            value="51b4e9cb-ab62-4353-b5a0-53d738a34f5d"
+          />
+          <input
+            type="checkbox"
+            name="botcheck"
+            id="cf-botcheck"
+            class="form-honeypot"
+            tabindex="-1"
+            autocomplete="off"
+          />
+
           <div class="form-group">
             <label for="cf-name">Nombre</label>
             <input
@@ -564,7 +579,7 @@
 
           <div class="form-fallback" id="cf-fallback" hidden>
             <p>
-              Si no se abrió tu programa de correo, copiá el mensaje y
+              No se pudo enviar automáticamente. Copiá el mensaje y
               mandalo a
               <strong>alvarogastonxar@gmail.com</strong> por cualquier vía:
             </p>
@@ -573,7 +588,7 @@
                 Copiar mensaje
               </button>
               <a class="btn btn-outline" id="cf-mailto-link" href="#">
-                Reintentar abrir mail
+                Abrir mail manualmente
               </a>
             </div>
           </div>

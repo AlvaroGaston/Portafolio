@@ -631,6 +631,20 @@ button:focus-visible {
   align-self: flex-start;
   cursor: pointer;
 }
+.contact-form .btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Honeypot anti-spam de Web3Forms: oculto para personas, visible para bots */
+.form-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
 .form-status {
   font-size: 0.88rem;
   color: var(--accent);
